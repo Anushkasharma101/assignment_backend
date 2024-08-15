@@ -3,7 +3,7 @@ const router = express.Router();
 const Product = require('../models/product'); // Ensure this path is correct
 
 router.get('/transactions', async (req, res) => {
-    const { page = 1, perPage = 10, search = '' } = req.query;
+    const { page = 1, perPage = 10, search = '', month = '' } = req.query;
     const skip = (page - 1) * perPage;
 
     // Helper function to check if a value is numeric
@@ -26,15 +26,26 @@ router.get('/transactions', async (req, res) => {
             }
         }
 
+        // Add month filtering logic
+        if (month && isNumeric(month)) {
+            // Ensure the month is valid (between 1 and 12)
+            const monthNumber = Number(month);
+            if (monthNumber >= 1 && monthNumber <= 12) {
+                query.$expr = {
+                    $eq: [{ $month: '$dateOfSale' }, monthNumber]
+                };
+            }
+        }
+
         // Debugging: Log the query object to ensure it’s built correctly
         console.log('Query:', JSON.stringify(query, null, 2));
 
-        // Fetch products with pagination and search
+        // Fetch products with pagination, search, and month filter
         let products = await Product.find(query).skip(skip).limit(Number(perPage));
         let count = await Product.countDocuments(query);
 
         // If no products found, fetch all products for the page
-        if (count === 0 && search) {
+        if (count === 0 && (search || month)) {
             console.log('No products found with search criteria. Fetching all products for the page.');
             products = await Product.find().skip(skip).limit(Number(perPage));
             count = await Product.countDocuments(); // Total number of products
