@@ -53,16 +53,16 @@ router.get('/bar-chart', async (req, res) => {
 
         // Update response based on aggregation results
         results.forEach(bucket => {
-            if (bucket._id >= 0 && bucket._id <= 100) response[0].count = bucket.count;
-            else if (bucket._id >= 101 && bucket._id <= 200) response[1].count = bucket.count;
-            else if (bucket._id >= 201 && bucket._id <= 300) response[2].count = bucket.count;
-            else if (bucket._id >= 301 && bucket._id <= 400) response[3].count = bucket.count;
-            else if (bucket._id >= 401 && bucket._id <= 500) response[4].count = bucket.count;
-            else if (bucket._id >= 501 && bucket._id <= 600) response[5].count = bucket.count;
-            else if (bucket._id >= 601 && bucket._id <= 700) response[6].count = bucket.count;
-            else if (bucket._id >= 701 && bucket._id <= 800) response[7].count = bucket.count;
-            else if (bucket._id >= 801 && bucket._id <= 900) response[8].count = bucket.count;
-            else if (bucket._id >= 901) response[9].count = bucket.count;
+            if (bucket._id === 0) response[0].count = bucket.count; // 0 - 100
+            else if (bucket._id === 100) response[1].count = bucket.count; // 101 - 200
+            else if (bucket._id === 200) response[2].count = bucket.count; // 201 - 300
+            else if (bucket._id === 300) response[3].count = bucket.count; // 301 - 400
+            else if (bucket._id === 400) response[4].count = bucket.count; // 401 - 500
+            else if (bucket._id === 500) response[5].count = bucket.count; // 501 - 600
+            else if (bucket._id === 600) response[6].count = bucket.count; // 601 - 700
+            else if (bucket._id === 700) response[7].count = bucket.count; // 701 - 800
+            else if (bucket._id === 800) response[8].count = bucket.count; // 801 - 900
+            else if (bucket._id === 900) response[9].count = bucket.count; // 901-above
         });
 
         res.json(response);

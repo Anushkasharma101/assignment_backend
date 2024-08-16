@@ -11,7 +11,7 @@ router.get('/transactions', async (req, res) => {
 
     try {
         // Build query object
-        const query = {};
+        let query = {};
 
         if (search) {
             if (isNumeric(search)) {
@@ -26,7 +26,7 @@ router.get('/transactions', async (req, res) => {
             }
         }
 
-        // Add month filtering logic
+        // Apply month filtering logic
         if (month && isNumeric(month)) {
             // Ensure the month is valid (between 1 and 12)
             const monthNumber = Number(month);
@@ -44,11 +44,22 @@ router.get('/transactions', async (req, res) => {
         let products = await Product.find(query).skip(skip).limit(Number(perPage));
         let count = await Product.countDocuments(query);
 
-        // If no products found, fetch all products for the page
-        if (count === 0 && (search || month)) {
-            console.log('No products found with search criteria. Fetching all products for the page.');
-            products = await Product.find().skip(skip).limit(Number(perPage));
-            count = await Product.countDocuments(); // Total number of products
+        // If no products found with search criteria, fetch based only on month filter
+        if (count === 0 && search) {
+            console.log('No products found with search criteria. Fetching products for the specified month.');
+            query = {}; // Reset query
+
+            if (month && isNumeric(month)) {
+                const monthNumber = Number(month);
+                if (monthNumber >= 1 && monthNumber <= 12) {
+                    query.$expr = {
+                        $eq: [{ $month: '$dateOfSale' }, monthNumber]
+                    };
+                }
+            }
+
+            products = await Product.find(query).skip(skip).limit(Number(perPage));
+            count = await Product.countDocuments(query); // Count based on month filter
         }
 
         // Debugging: Log the number of products found
